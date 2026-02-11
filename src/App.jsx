@@ -342,7 +342,7 @@ function CardSlot({rank,suit,onSelect,label}) {
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
       <span style={{fontSize:10,color:"#78866f",letterSpacing:1.5,fontFamily:sn,fontWeight:700}}>{label}</span>
-      <div style={{width:60,height:84,borderRadius:7,background:has?"linear-gradient(160deg,#faf9f4,#f0ede3)":"#1c2a1c",border:has?"2px solid #c5b47b":"2px dashed rgba(255,255,255,0.08)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",transition:"all 0.25s",boxShadow:has?"0 3px 12px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.8)":"none"}}>
+      <div style={{width:60,height:84,borderRadius:7,background:has?"linear-gradient(160deg,#faf3e0,#f0e2b8,#e8d9a0)":"#1c2a1c",border:has?"2px solid #c5b47b":"2px dashed rgba(255,255,255,0.08)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",transition:"all 0.25s",boxShadow:has?"0 3px 12px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.8)":"none"}}>
         {has?(<><span style={{fontSize:21,fontWeight:700,color:sc==="#cbd5e1"?"#1e293b":sc,fontFamily:ft,lineHeight:1}}>{rank}</span><span style={{fontSize:18,color:sc==="#cbd5e1"?"#1e293b":sc,lineHeight:1,marginTop:1}}>{suit}</span></>):(<span style={{fontSize:20,color:"rgba(255,255,255,0.06)"}}>?</span>)}
       </div>
       <div style={{display:"flex",gap:3}}>
@@ -509,9 +509,8 @@ export default function App(){
     <div style={{minHeight:"100vh",background:"linear-gradient(170deg,#0b1a0b 0%,#122412 40%,#0e1e0e 100%)",color:"#c8d4c0",fontFamily:sn,backgroundImage:"radial-gradient(ellipse at 50% -10%,rgba(197,180,123,0.04),transparent 60%)"}}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Nunito+Sans:wght@400;600;700;800&family=Source+Code+Pro:wght@400;500&display=swap');*{box-sizing:border-box;margin:0;padding:0;}::selection{background:rgba(197,180,123,0.25);}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
 
-      <header style={{textAlign:"center",padding:"32px 16px 14px",borderBottom:"1px solid rgba(197,180,123,0.1)"}}>
-        <h1 style={{fontFamily:ft,fontWeight:700,fontSize:26,color:"#c5b47b",letterSpacing:0.5}}>Texas Hold'em Equity</h1>
-        <p style={{fontSize:11,color:"#607060",marginTop:5,letterSpacing:3,fontFamily:sn,fontWeight:700}}>MONTE CARLO SIMULATION</p>
+      <header style={{textAlign:"center",padding:"24px 16px 14px",borderBottom:"1px solid rgba(197,180,123,0.1)"}}>
+        <img src="/header.png" alt="Texas Hold'em Monte Carlo Simulation" style={{maxWidth:340,width:"80%",height:"auto",display:"block",margin:"0 auto"}} />
       </header>
 
       <nav style={{display:"flex",justifyContent:"center",gap:0,marginTop:8}}>
@@ -543,6 +542,10 @@ export default function App(){
               <button onClick={run} disabled={busy} style={{padding:"10px 32px",borderRadius:7,background:busy?"rgba(255,255,255,0.04)":"linear-gradient(135deg,#c5b47b,#a89460)",color:busy?"#506050":"#0b1a0b",border:"none",fontFamily:sn,fontSize:14,fontWeight:800,cursor:busy?"wait":"pointer",transition:"all 0.2s",boxShadow:busy?"none":"0 3px 15px rgba(197,180,123,0.2)",letterSpacing:0.5}}>{busy?"計算中...":"計算"}</button>
               {result&&!busy&&<button onClick={run} style={{padding:"10px 20px",borderRadius:7,background:"rgba(255,255,255,0.04)",color:"#90a888",border:"1px solid rgba(255,255,255,0.08)",fontSize:12,fontWeight:700,fontFamily:sn,cursor:"pointer"}}>重新計算</button>}
               <button onClick={clear} style={{padding:"10px 20px",borderRadius:7,background:"rgba(255,255,255,0.02)",color:"#607060",border:"1px solid rgba(255,255,255,0.06)",fontSize:12,fontWeight:600,fontFamily:sn,cursor:"pointer"}}>清空</button>
+            </div>
+
+            <div style={{textAlign:"center",marginBottom:12}}>
+              <a href="https://yakitori197.github.io/YoLab/" target="_blank" rel="noopener noreferrer" style={{fontFamily:ft,fontSize:14,fontWeight:700,color:"#c5b47b",textDecoration:"none",letterSpacing:1,padding:"4px 12px",borderRadius:5,border:"1px solid rgba(197,180,123,0.2)",background:"rgba(197,180,123,0.06)",transition:"all 0.2s"}}>YoLab</a>
             </div>
 
             {busy&&(<div style={{textAlign:"center",padding:20}}><div style={{width:"60%",height:4,background:"rgba(255,255,255,0.06)",borderRadius:2,margin:"0 auto 10px",overflow:"hidden"}}><div style={{width:`${progress}%`,height:"100%",background:"linear-gradient(90deg,#c5b47b,#a89460)",transition:"width 0.3s",borderRadius:2}}/></div><span style={{fontSize:12,color:"#78866f"}}>{progress}%</span></div>)}
