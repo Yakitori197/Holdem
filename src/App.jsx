@@ -72,7 +72,6 @@ function best5of7(seven) {
 
 function cmpA(a,b){const m=Math.min(a.length,b.length);for(let i=0;i<m;i++)if(a[i]!==b[i])return a[i]-b[i];return a.length-b.length;}
 
-/* bestHand: general version for 5, 6, or 7 cards */
 function bestHand(cards) {
   if (cards.length < 5) return null;
   if (cards.length === 5) {
@@ -80,7 +79,6 @@ function bestHand(cards) {
     return eval5(r[0],r[1],r[2],r[3],r[4],s[0],s[1],s[2],s[3],s[4]);
   }
   if (cards.length === 7) return best5of7(cards);
-  /* 6 cards: C(6,5)=6 combos */
   const n = cards.length;
   let best = [-1];
   const gen = (start, ch) => {
@@ -96,7 +94,6 @@ function bestHand(cards) {
   return best;
 }
 
-/* Async chunked equity calc */
 function calcEquityAsync(heroPacked, boardPacked, iters, seed, onProgress, onDone) {
   const rem = remainingDeck(heroPacked.concat(boardPacked));
   const boardLen = boardPacked.length;
@@ -321,7 +318,7 @@ function generateBeatConditions(heroScore, ba) {
    ═══════════════════════════════════════════════════════════════════════ */
 const RANK_LABELS = ["2","3","4","5","6","7","8","9","T","J","Q","K","A"];
 const SUIT_SYMBOLS = ["♠","♥","♦","♣"];
-const SUIT_COLORS = ["#cbd5e1","#ef4444","#60a5fa","#4ade80"];
+const SUIT_COLORS_LIGHT = ["#2c3e50","#c0392b","#2874a6","#1e8449"];
 const RANK_TO_INT = Object.fromEntries(RANK_LABELS.map((r,i)=>[r,i+2]));
 const SUIT_TO_INT = Object.fromEntries(SUIT_SYMBOLS.map((s,i)=>[s,i]));
 function packCard(rank,suit){return(RANK_TO_INT[rank]-2)*4+SUIT_TO_INT[suit];}
@@ -331,19 +328,26 @@ const mn = "'Source Code Pro','Courier New',monospace";
 const sn = "'Nunito Sans','Segoe UI',sans-serif";
 
 /* ═══════════════════════════════════════════════════════════════════════
-   UI COMPONENTS
+   UI COMPONENTS — LIGHT GOLD THEME
    ═══════════════════════════════════════════════════════════════════════ */
 
-const selSty={background:"#1a2a1a",color:"#b0c4a8",border:"1px solid rgba(255,255,255,0.1)",borderRadius:4,padding:"2px 3px",fontSize:12,fontFamily:sn,outline:"none",cursor:"pointer",width:36};
+const selSty={background:"#faf5e8",color:"#5a4a2a",border:"1px solid #d4c9a0",borderRadius:4,padding:"2px 3px",fontSize:12,fontFamily:sn,outline:"none",cursor:"pointer",width:36};
 
 function CardSlot({rank,suit,onSelect,label}) {
   const has=rank&&suit;
-  const sc=suit?SUIT_COLORS[SUIT_TO_INT[suit]]:null;
+  const sc=suit?SUIT_COLORS_LIGHT[SUIT_TO_INT[suit]]:null;
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
-      <span style={{fontSize:10,color:"#78866f",letterSpacing:1.5,fontFamily:sn,fontWeight:700}}>{label}</span>
-      <div style={{width:60,height:84,borderRadius:7,background:has?"linear-gradient(160deg,#faf3e0,#f0e2b8,#e8d9a0)":"#1c2a1c",border:has?"2px solid #c5b47b":"2px dashed rgba(255,255,255,0.08)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",transition:"all 0.25s",boxShadow:has?"0 3px 12px rgba(0,0,0,0.25),inset 0 1px 0 rgba(255,255,255,0.8)":"none"}}>
-        {has?(<><span style={{fontSize:21,fontWeight:700,color:sc==="#cbd5e1"?"#1e293b":sc,fontFamily:ft,lineHeight:1}}>{rank}</span><span style={{fontSize:18,color:sc==="#cbd5e1"?"#1e293b":sc,lineHeight:1,marginTop:1}}>{suit}</span></>):(<span style={{fontSize:20,color:"rgba(255,255,255,0.06)"}}>?</span>)}
+      <span style={{fontSize:10,color:"#8a7a55",letterSpacing:1.5,fontFamily:sn,fontWeight:700}}>{label}</span>
+      <div style={{
+        width:60,height:84,borderRadius:7,
+        background:has?"linear-gradient(160deg,#fffdf5,#f8f0d8,#f0e6c0)":"linear-gradient(160deg,#f0ead0,#e8dfc0)",
+        border:has?"2px solid #b8a060":"2px dashed #c8b888",
+        display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+        transition:"all 0.25s",
+        boxShadow:has?"0 3px 12px rgba(150,130,80,0.2),inset 0 1px 0 rgba(255,255,255,0.9)":"inset 0 1px 3px rgba(0,0,0,0.04)"
+      }}>
+        {has?(<><span style={{fontSize:21,fontWeight:700,color:sc,fontFamily:ft,lineHeight:1}}>{rank}</span><span style={{fontSize:18,color:sc,lineHeight:1,marginTop:1}}>{suit}</span></>):(<span style={{fontSize:20,color:"#d0c8a8"}}>?</span>)}
       </div>
       <div style={{display:"flex",gap:3}}>
         <select value={rank||""} onChange={e=>onSelect(e.target.value,suit)} style={selSty}><option value="">-</option>{RANK_LABELS.map(r=><option key={r} value={r}>{r}</option>)}</select>
@@ -353,14 +357,14 @@ function CardSlot({rank,suit,onSelect,label}) {
   );
 }
 
-function Bar({win,tie,lose}){const w=win*100,t=tie*100,l=lose*100;return(<div style={{width:"100%",height:28,borderRadius:6,overflow:"hidden",display:"flex",border:"1px solid rgba(255,255,255,0.06)",boxShadow:"inset 0 2px 6px rgba(0,0,0,0.3)"}}><div style={{width:`${w}%`,background:"linear-gradient(135deg,#22c55e,#16a34a)",transition:"width 0.5s",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#fff"}}>{w>9?`${w.toFixed(1)}%`:""}</div><div style={{width:`${t}%`,background:"linear-gradient(135deg,#94a3b8,#64748b)",transition:"width 0.5s",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#fff"}}>{t>9?`${t.toFixed(1)}%`:""}</div><div style={{width:`${l}%`,background:"linear-gradient(135deg,#ef4444,#dc2626)",transition:"width 0.5s",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#fff"}}>{l>9?`${l.toFixed(1)}%`:""}</div></div>);}
+function Bar({win,tie,lose}){const w=win*100,t=tie*100,l=lose*100;return(<div style={{width:"100%",height:28,borderRadius:6,overflow:"hidden",display:"flex",border:"1px solid rgba(0,0,0,0.08)",boxShadow:"inset 0 1px 4px rgba(0,0,0,0.08)"}}><div style={{width:`${w}%`,background:"linear-gradient(135deg,#2ecc71,#27ae60)",transition:"width 0.5s",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#fff"}}>{w>9?`${w.toFixed(1)}%`:""}</div><div style={{width:`${t}%`,background:"linear-gradient(135deg,#95a5a6,#7f8c8d)",transition:"width 0.5s",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#fff"}}>{t>9?`${t.toFixed(1)}%`:""}</div><div style={{width:`${l}%`,background:"linear-gradient(135deg,#e74c3c,#c0392b)",transition:"width 0.5s",display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:800,color:"#fff"}}>{l>9?`${l.toFixed(1)}%`:""}</div></div>);}
 
-function Stat({label,value,samples,color,method}){const pct=(value*100).toFixed(2);const isE=method==="exhaustive";const ci=isE?0:1.96*Math.sqrt(value*(1-value)/samples)*100;return(<div style={{textAlign:"center",minWidth:90}}><div style={{fontSize:10,color:"#78866f",letterSpacing:2,marginBottom:3,fontFamily:sn,fontWeight:700}}>{label}</div><div style={{fontSize:26,fontWeight:700,fontFamily:ft,color,lineHeight:1}}>{pct}%</div><div style={{fontSize:10,color:"#607060",marginTop:3,fontFamily:mn}}>{isE?"精確計算":`±${ci.toFixed(2)}%`}</div></div>);}
+function Stat({label,value,samples,color,method}){const pct=(value*100).toFixed(2);const isE=method==="exhaustive";const ci=isE?0:1.96*Math.sqrt(value*(1-value)/samples)*100;return(<div style={{textAlign:"center",minWidth:90}}><div style={{fontSize:10,color:"#8a7a55",letterSpacing:2,marginBottom:3,fontFamily:sn,fontWeight:700}}>{label}</div><div style={{fontSize:26,fontWeight:700,fontFamily:ft,color,lineHeight:1}}>{pct}%</div><div style={{fontSize:10,color:"#a09070",marginTop:3,fontFamily:mn}}>{isE?"精確計算":`±${ci.toFixed(2)}%`}</div></div>);}
 
-function Section({title,children}){return(<div style={{marginTop:20}}><div style={{fontSize:10,fontWeight:800,color:"#a08c5a",letterSpacing:2.5,marginBottom:8,fontFamily:sn}}>{title}</div><div style={{background:"rgba(255,255,255,0.025)",borderRadius:10,border:"1px solid rgba(255,255,255,0.05)",padding:18}}>{children}</div></div>);}
+function Section({title,children}){return(<div style={{marginTop:20}}><div style={{fontSize:10,fontWeight:800,color:"#8a6e2f",letterSpacing:2.5,marginBottom:8,fontFamily:sn}}>{title}</div><div style={{background:"rgba(255,255,255,0.5)",borderRadius:10,border:"1px solid rgba(180,160,100,0.2)",padding:18,backdropFilter:"blur(4px)"}}>{children}</div></div>);}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   HAND ANALYSIS PANEL
+   HAND ANALYSIS PANEL — LIGHT THEME
    ═══════════════════════════════════════════════════════════════════════ */
 
 function HandAnalysisPanel({heroScore,boardAnalysis,winPct,boardLen}) {
@@ -370,43 +374,37 @@ function HandAnalysisPanel({heroScore,boardAnalysis,winPct,boardLen}) {
   const beats = generateBeatConditions(heroScore, boardAnalysis);
   const partial = boardLen < 5;
 
-  const lbl={fontSize:11,color:"#78866f",fontWeight:700,letterSpacing:1,marginBottom:4,fontFamily:sn};
-  const txt={fontSize:13,color:"#b8ccb0",lineHeight:1.7,marginBottom:14};
-  const badge={display:"inline-block",fontSize:11.5,color:"#d4a844",background:"rgba(212,168,68,0.08)",border:"1px solid rgba(212,168,68,0.18)",borderRadius:5,padding:"4px 10px",marginRight:6,marginBottom:6};
+  const lbl={fontSize:11,color:"#8a7a55",fontWeight:700,letterSpacing:1,marginBottom:4,fontFamily:sn};
+  const txt={fontSize:13,color:"#4a3f2a",lineHeight:1.7,marginBottom:14};
+  const badge={display:"inline-block",fontSize:11.5,color:"#8a6e2f",background:"rgba(180,150,60,0.1)",border:"1px solid rgba(180,150,60,0.25)",borderRadius:5,padding:"4px 10px",marginRight:6,marginBottom:6};
 
   return (
-    <div style={{background:"rgba(255,255,255,0.02)",borderRadius:10,border:"1px solid rgba(255,255,255,0.05)",padding:20,marginTop:16}}>
-      <div style={{fontSize:10,fontWeight:800,color:"#a08c5a",letterSpacing:2.5,marginBottom:14,fontFamily:sn}}>手牌分析</div>
+    <div style={{background:"rgba(255,255,255,0.45)",borderRadius:10,border:"1px solid rgba(180,160,100,0.2)",padding:20,marginTop:16,backdropFilter:"blur(4px)"}}>
+      <div style={{fontSize:10,fontWeight:800,color:"#8a6e2f",letterSpacing:2.5,marginBottom:14,fontFamily:sn}}>手牌分析</div>
 
-      {partial&&(<div style={{fontSize:11,color:"#8a7a50",background:"rgba(197,180,123,0.06)",borderRadius:6,padding:"6px 10px",marginBottom:12,border:"1px solid rgba(197,180,123,0.1)"}}>公牌尚未全部翻出，以下分析基於目前已知牌面，最終牌型可能改變。</div>)}
+      {partial&&(<div style={{fontSize:11,color:"#8a7a55",background:"rgba(200,180,120,0.1)",borderRadius:6,padding:"6px 10px",marginBottom:12,border:"1px solid rgba(200,180,120,0.2)"}}>公牌尚未全部翻出，以下分析基於目前已知牌面，最終牌型可能改變。</div>)}
 
-      {/* A1 */}
       <div style={lbl}>你的最佳牌型</div>
-      <div style={{...txt,fontSize:15,color:"#d0e0c8",fontWeight:600}}>{handName}</div>
+      <div style={{...txt,fontSize:15,color:"#3a2f18",fontWeight:600}}>{handName}</div>
 
-      {/* A4 */}
       {risks.length>0&&(<><div style={lbl}>牌面風險提示</div><div style={{marginBottom:14}}>{risks.map((r,i)=><span key={i} style={badge}>⚠ {r}</span>)}</div></>)}
 
-      {/* A2 */}
       {analysis.whyNot&&(<><div style={lbl}>為什麼不是 100%</div><div style={txt}>{analysis.whyNot}</div></>)}
 
-      {/* A3 */}
       {analysis.loseTo.length>0&&(<><div style={lbl}>可能輸給</div><div style={txt}>{analysis.loseTo.join("、")}</div></>)}
 
-      {/* B */}
       {beats.length>0&&(
         <details style={{marginTop:4,marginBottom:14}}>
-          <summary style={{fontSize:12,color:"#a08c5a",cursor:"pointer",fontWeight:700,fontFamily:sn,padding:"8px 0",borderTop:"1px solid rgba(255,255,255,0.04)",userSelect:"none"}}>
+          <summary style={{fontSize:12,color:"#8a6e2f",cursor:"pointer",fontWeight:700,fontFamily:sn,padding:"8px 0",borderTop:"1px solid rgba(180,160,100,0.15)",userSelect:"none"}}>
             ▸ 對手如何擊敗你？
           </summary>
           <div style={{padding:"8px 0 4px 4px"}}>
-            {beats.map((b,i)=>(<div key={i} style={{fontSize:12.5,color:"#90a888",lineHeight:1.8,paddingLeft:10,borderLeft:"2px solid rgba(197,180,123,0.15)",marginBottom:6}}>{b}</div>))}
+            {beats.map((b,i)=>(<div key={i} style={{fontSize:12.5,color:"#5a4a2a",lineHeight:1.8,paddingLeft:10,borderLeft:"2px solid rgba(180,150,60,0.25)",marginBottom:6}}>{b}</div>))}
           </div>
         </details>
       )}
 
-      {/* D */}
-      <div style={{borderTop:"1px solid rgba(255,255,255,0.04)",paddingTop:10,marginTop:4,fontSize:11,color:"#506050",lineHeight:1.8}}>
+      <div style={{borderTop:"1px solid rgba(180,160,100,0.15)",paddingTop:10,marginTop:4,fontSize:11,color:"#a09070",lineHeight:1.8}}>
         <p>※ 分析為輔助理解牌型與風險，非投資/下注建議。</p>
         <p>※ 建議重算多次（或提高精度）觀察結果是否穩定。</p>
       </div>
@@ -415,12 +413,12 @@ function HandAnalysisPanel({heroScore,boardAnalysis,winPct,boardLen}) {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   HELP
+   HELP — LIGHT THEME
    ═══════════════════════════════════════════════════════════════════════ */
 function Help(){
-  const h={fontFamily:ft,color:"#c5b47b",fontSize:15,margin:"18px 0 6px"};
-  const p={color:"#90a888",fontSize:13,lineHeight:1.85,margin:"4px 0 4px 12px"};
-  const sep={height:1,background:"rgba(255,255,255,0.04)",margin:"16px 0"};
+  const h={fontFamily:ft,color:"#8a6e2f",fontSize:15,margin:"18px 0 6px"};
+  const p={color:"#5a4a2a",fontSize:13,lineHeight:1.85,margin:"4px 0 4px 12px"};
+  const sep={height:1,background:"rgba(180,160,100,0.15)",margin:"16px 0"};
   return(
     <div style={{maxWidth:560,margin:"0 auto",padding:"8px 0 40px"}}>
       <div style={h}>操作步驟</div>
@@ -436,23 +434,23 @@ function Help(){
       <div style={p}>計算完成後，結果下方會顯示手牌分析區塊，包含你的最佳牌型、牌面風險、為什麼不是 100%、以及對手可能如何擊敗你的說明。</div>
       <div style={sep}/>
       <div style={h}>計算精度</div>
-      <div style={p}><b style={{color:"#c8d4c0"}}>快速</b> — 幾秒出結果，適合快速預覽</div>
-      <div style={p}><b style={{color:"#c8d4c0"}}>標準</b> — 日常使用，精度與速度兼顧</div>
-      <div style={p}><b style={{color:"#c8d4c0"}}>高精度</b> — 更精確但耗時較長</div>
+      <div style={p}><b style={{color:"#3a2f18"}}>快速</b> — 幾秒出結果，適合快速預覽</div>
+      <div style={p}><b style={{color:"#3a2f18"}}>標準</b> — 日常使用，精度與速度兼顧</div>
+      <div style={p}><b style={{color:"#3a2f18"}}>高精度</b> — 更精確但耗時較長</div>
       <div style={sep}/>
       <div style={h}>Seed</div>
       <div style={p}>一般留空即可。填入整數可重現相同結果。</div>
       <div style={sep}/>
-      <div style={{background:"rgba(197,180,123,0.06)",borderRadius:8,padding:14,border:"1px solid rgba(197,180,123,0.12)",marginTop:12}}>
-        <div style={{color:"#c5b47b",fontWeight:800,fontSize:11,letterSpacing:1.5,marginBottom:6,fontFamily:sn}}>重要提醒</div>
-        <div style={{color:"#90a888",fontSize:12.5,lineHeight:1.8}}>結果為模擬估計值，非精確預測。建議多算幾次觀察穩定性，或使用高精度檔位。</div>
+      <div style={{background:"rgba(200,180,120,0.1)",borderRadius:8,padding:14,border:"1px solid rgba(200,180,120,0.2)",marginTop:12}}>
+        <div style={{color:"#8a6e2f",fontWeight:800,fontSize:11,letterSpacing:1.5,marginBottom:6,fontFamily:sn}}>重要提醒</div>
+        <div style={{color:"#5a4a2a",fontSize:12.5,lineHeight:1.8}}>結果為模擬估計值，非精確預測。建議多算幾次觀察穩定性，或使用高精度檔位。</div>
       </div>
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   APP
+   APP — LIGHT GOLD THEME
    ═══════════════════════════════════════════════════════════════════════ */
 export default function App(){
   const [tab,setTab]=useState("calc");
@@ -495,7 +493,6 @@ export default function App(){
 
   const clear=()=>{cancelRef.current?.cancel();setHero([{rank:null,suit:null},{rank:null,suit:null}]);setBoard(Array(5).fill(null).map(()=>({rank:null,suit:null})));setSeed("");setResult(null);setError(null);setBusy(false);};
 
-  /* Compute analysis when result ready */
   const boardCards=board.filter(c=>c.rank&&c.suit);
   const totalCards=2+boardCards.length;
   let heroScore=null,boardAna=null;
@@ -506,15 +503,20 @@ export default function App(){
   }
 
   return (
-    <div style={{minHeight:"100vh",background:"linear-gradient(170deg,#0b1a0b 0%,#122412 40%,#0e1e0e 100%)",color:"#c8d4c0",fontFamily:sn,backgroundImage:"radial-gradient(ellipse at 50% -10%,rgba(197,180,123,0.04),transparent 60%)"}}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Nunito+Sans:wght@400;600;700;800&family=Source+Code+Pro:wght@400;500&display=swap');*{box-sizing:border-box;margin:0;padding:0;}::selection{background:rgba(197,180,123,0.25);}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
+    <div style={{
+      minHeight:"100vh",
+      background:"linear-gradient(170deg, #faf6ec 0%, #f5edda 25%, #efe5c8 50%, #f2ebd5 75%, #f8f2e4 100%)",
+      color:"#3a2f18",fontFamily:sn,
+      backgroundImage:"radial-gradient(ellipse at 50% 0%, rgba(212,180,80,0.08) 0%, transparent 50%), radial-gradient(ellipse at 80% 100%, rgba(180,150,60,0.05) 0%, transparent 50%)"
+    }}>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:wght@400;700&family=Nunito+Sans:wght@400;600;700;800&family=Source+Code+Pro:wght@400;500&display=swap');*{box-sizing:border-box;margin:0;padding:0;}::selection{background:rgba(180,150,60,0.25);}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}`}</style>
 
-      <header style={{textAlign:"center",padding:"24px 16px 14px",borderBottom:"1px solid rgba(197,180,123,0.1)"}}>
+      <header style={{textAlign:"center",padding:"24px 16px 14px",borderBottom:"1px solid rgba(180,160,100,0.2)"}}>
         <img src="/header.png" alt="Texas Hold'em Monte Carlo Simulation" style={{maxWidth:340,width:"80%",height:"auto",display:"block",margin:"0 auto"}} />
       </header>
 
       <nav style={{display:"flex",justifyContent:"center",gap:0,marginTop:8}}>
-        {[["calc","計算器"],["help","使用說明"]].map(([k,l])=>(<button key={k} onClick={()=>setTab(k)} style={{padding:"9px 28px",background:tab===k?"rgba(197,180,123,0.08)":"transparent",color:tab===k?"#c5b47b":"#607060",border:"none",borderBottom:tab===k?"2px solid #c5b47b":"2px solid transparent",fontFamily:sn,fontSize:13,fontWeight:700,cursor:"pointer",transition:"all 0.2s",letterSpacing:0.5}}>{l}</button>))}
+        {[["calc","計算器"],["help","使用說明"]].map(([k,l])=>(<button key={k} onClick={()=>setTab(k)} style={{padding:"9px 28px",background:tab===k?"rgba(180,150,60,0.1)":"transparent",color:tab===k?"#8a6e2f":"#a09070",border:"none",borderBottom:tab===k?"2px solid #b8952e":"2px solid transparent",fontFamily:sn,fontSize:13,fontWeight:700,cursor:"pointer",transition:"all 0.2s",letterSpacing:0.5}}>{l}</button>))}
       </nav>
 
       <main style={{maxWidth:680,margin:"0 auto",padding:"10px 16px 50px"}}>
@@ -528,41 +530,41 @@ export default function App(){
             <Section title="SETTINGS">
               <div style={{display:"flex",gap:20,flexWrap:"wrap",justifyContent:"center",alignItems:"flex-end"}}>
                 <div>
-                  <div style={{fontSize:10,color:"#78866f",letterSpacing:1.5,marginBottom:5,fontWeight:700}}>精度</div>
-                  <div style={{display:"flex",gap:5}}>{Object.entries(PREC).map(([k,v])=>(<button key={k} onClick={()=>setPrec(k)} style={{padding:"5px 13px",borderRadius:5,background:prec===k?"rgba(197,180,123,0.12)":"rgba(255,255,255,0.03)",color:prec===k?"#c5b47b":"#78866f",border:prec===k?"1px solid rgba(197,180,123,0.35)":"1px solid rgba(255,255,255,0.06)",fontFamily:sn,fontSize:12,fontWeight:700,cursor:"pointer",transition:"all 0.2s"}}>{v.label}</button>))}</div>
+                  <div style={{fontSize:10,color:"#8a7a55",letterSpacing:1.5,marginBottom:5,fontWeight:700}}>精度</div>
+                  <div style={{display:"flex",gap:5}}>{Object.entries(PREC).map(([k,v])=>(<button key={k} onClick={()=>setPrec(k)} style={{padding:"5px 13px",borderRadius:5,background:prec===k?"rgba(180,150,60,0.15)":"rgba(255,255,255,0.5)",color:prec===k?"#8a6e2f":"#a09070",border:prec===k?"1px solid rgba(180,150,60,0.35)":"1px solid rgba(180,160,100,0.2)",fontFamily:sn,fontSize:12,fontWeight:700,cursor:"pointer",transition:"all 0.2s"}}>{v.label}</button>))}</div>
                 </div>
                 <div>
-                  <div style={{fontSize:10,color:"#78866f",letterSpacing:1.5,marginBottom:5,fontWeight:700}}>SEED</div>
-                  <input value={seed} onChange={e=>setSeed(e.target.value)} placeholder="留空=隨機" style={{background:"#162016",color:"#b0c4a8",border:"1px solid rgba(255,255,255,0.08)",borderRadius:5,padding:"5px 9px",fontSize:12,fontFamily:mn,width:100,outline:"none"}}/>
+                  <div style={{fontSize:10,color:"#8a7a55",letterSpacing:1.5,marginBottom:5,fontWeight:700}}>SEED</div>
+                  <input value={seed} onChange={e=>setSeed(e.target.value)} placeholder="留空=隨機" style={{background:"#faf5e8",color:"#5a4a2a",border:"1px solid #d4c9a0",borderRadius:5,padding:"5px 9px",fontSize:12,fontFamily:mn,width:100,outline:"none"}}/>
                 </div>
               </div>
             </Section>
 
             <div style={{display:"flex",gap:8,justifyContent:"center",margin:"18px 0"}}>
-              <button onClick={run} disabled={busy} style={{padding:"10px 32px",borderRadius:7,background:busy?"rgba(255,255,255,0.04)":"linear-gradient(135deg,#c5b47b,#a89460)",color:busy?"#506050":"#0b1a0b",border:"none",fontFamily:sn,fontSize:14,fontWeight:800,cursor:busy?"wait":"pointer",transition:"all 0.2s",boxShadow:busy?"none":"0 3px 15px rgba(197,180,123,0.2)",letterSpacing:0.5}}>{busy?"計算中...":"計算"}</button>
-              {result&&!busy&&<button onClick={run} style={{padding:"10px 20px",borderRadius:7,background:"rgba(255,255,255,0.04)",color:"#90a888",border:"1px solid rgba(255,255,255,0.08)",fontSize:12,fontWeight:700,fontFamily:sn,cursor:"pointer"}}>重新計算</button>}
-              <button onClick={clear} style={{padding:"10px 20px",borderRadius:7,background:"rgba(255,255,255,0.02)",color:"#607060",border:"1px solid rgba(255,255,255,0.06)",fontSize:12,fontWeight:600,fontFamily:sn,cursor:"pointer"}}>清空</button>
+              <button onClick={run} disabled={busy} style={{padding:"10px 32px",borderRadius:7,background:busy?"rgba(200,180,120,0.15)":"linear-gradient(135deg,#c5a43e,#a8892e)",color:busy?"#a09070":"#fff",border:"none",fontFamily:sn,fontSize:14,fontWeight:800,cursor:busy?"wait":"pointer",transition:"all 0.2s",boxShadow:busy?"none":"0 3px 15px rgba(180,150,60,0.25)",letterSpacing:0.5,textShadow:busy?"none":"0 1px 2px rgba(0,0,0,0.2)"}}>{busy?"計算中...":"計算"}</button>
+              {result&&!busy&&<button onClick={run} style={{padding:"10px 20px",borderRadius:7,background:"rgba(255,255,255,0.5)",color:"#8a6e2f",border:"1px solid rgba(180,150,60,0.25)",fontSize:12,fontWeight:700,fontFamily:sn,cursor:"pointer"}}>重新計算</button>}
+              <button onClick={clear} style={{padding:"10px 20px",borderRadius:7,background:"rgba(255,255,255,0.3)",color:"#a09070",border:"1px solid rgba(180,160,100,0.2)",fontSize:12,fontWeight:600,fontFamily:sn,cursor:"pointer"}}>清空</button>
             </div>
 
             <div style={{textAlign:"center",marginBottom:12}}>
-              <a href="https://yakitori197.github.io/YoLab/" target="_blank" rel="noopener noreferrer" style={{fontFamily:ft,fontSize:14,fontWeight:700,color:"#c5b47b",textDecoration:"none",letterSpacing:1,padding:"4px 12px",borderRadius:5,border:"1px solid rgba(197,180,123,0.2)",background:"rgba(197,180,123,0.06)",transition:"all 0.2s"}}>YoLab</a>
+              <a href="https://yakitori197.github.io/YoLab/" target="_blank" rel="noopener noreferrer" style={{fontFamily:ft,fontSize:14,fontWeight:700,color:"#8a6e2f",textDecoration:"none",letterSpacing:1,padding:"4px 12px",borderRadius:5,border:"1px solid rgba(180,150,60,0.25)",background:"rgba(255,255,255,0.4)",transition:"all 0.2s"}}>YoLab</a>
             </div>
 
-            {busy&&(<div style={{textAlign:"center",padding:20}}><div style={{width:"60%",height:4,background:"rgba(255,255,255,0.06)",borderRadius:2,margin:"0 auto 10px",overflow:"hidden"}}><div style={{width:`${progress}%`,height:"100%",background:"linear-gradient(90deg,#c5b47b,#a89460)",transition:"width 0.3s",borderRadius:2}}/></div><span style={{fontSize:12,color:"#78866f"}}>{progress}%</span></div>)}
+            {busy&&(<div style={{textAlign:"center",padding:20}}><div style={{width:"60%",height:4,background:"rgba(180,160,100,0.15)",borderRadius:2,margin:"0 auto 10px",overflow:"hidden"}}><div style={{width:`${progress}%`,height:"100%",background:"linear-gradient(90deg,#c5a43e,#a8892e)",transition:"width 0.3s",borderRadius:2}}/></div><span style={{fontSize:12,color:"#a09070"}}>{progress}%</span></div>)}
 
-            {error&&<div style={{background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.25)",borderRadius:8,padding:"9px 16px",textAlign:"center",color:"#ef4444",fontSize:12.5,marginBottom:12,animation:"fadeIn 0.3s"}}>{error}</div>}
+            {error&&<div style={{background:"rgba(231,76,60,0.08)",border:"1px solid rgba(231,76,60,0.25)",borderRadius:8,padding:"9px 16px",textAlign:"center",color:"#c0392b",fontSize:12.5,marginBottom:12,animation:"fadeIn 0.3s"}}>{error}</div>}
 
             {result&&!busy&&(
               <>
-                <div style={{background:"rgba(255,255,255,0.025)",borderRadius:10,border:"1px solid rgba(197,180,123,0.1)",padding:22,animation:"fadeIn 0.4s",boxShadow:"0 6px 30px rgba(0,0,0,0.15)"}}>
-                  <div style={{fontSize:10,color:"#78866f",letterSpacing:2,marginBottom:14,textAlign:"center",fontWeight:700}}>{PREC[prec].label} &nbsp;|&nbsp; {result.samples.toLocaleString()} samples &nbsp;|&nbsp; {result.elapsed.toFixed(2)}s</div>
+                <div style={{background:"rgba(255,255,255,0.5)",borderRadius:10,border:"1px solid rgba(180,160,100,0.2)",padding:22,animation:"fadeIn 0.4s",boxShadow:"0 4px 20px rgba(150,130,80,0.08)",backdropFilter:"blur(4px)"}}>
+                  <div style={{fontSize:10,color:"#8a7a55",letterSpacing:2,marginBottom:14,textAlign:"center",fontWeight:700}}>{PREC[prec].label} &nbsp;|&nbsp; {result.samples.toLocaleString()} samples &nbsp;|&nbsp; {result.elapsed.toFixed(2)}s</div>
                   <Bar win={result.win} tie={result.tie} lose={result.lose}/>
                   <div style={{display:"flex",justifyContent:"center",gap:28,marginTop:18,flexWrap:"wrap"}}>
-                    <Stat label="WIN" value={result.win} samples={result.samples} color="#22c55e" method={result.method}/>
-                    <Stat label="TIE" value={result.tie} samples={result.samples} color="#94a3b8" method={result.method}/>
-                    <Stat label="LOSE" value={result.lose} samples={result.samples} color="#ef4444" method={result.method}/>
+                    <Stat label="WIN" value={result.win} samples={result.samples} color="#27ae60" method={result.method}/>
+                    <Stat label="TIE" value={result.tie} samples={result.samples} color="#7f8c8d" method={result.method}/>
+                    <Stat label="LOSE" value={result.lose} samples={result.samples} color="#c0392b" method={result.method}/>
                   </div>
-                  <div style={{marginTop:16,padding:"10px 14px",borderRadius:7,background:"rgba(255,255,255,0.015)",border:"1px solid rgba(255,255,255,0.04)",fontSize:11,color:"#607060",lineHeight:1.8}}>
+                  <div style={{marginTop:16,padding:"10px 14px",borderRadius:7,background:"rgba(200,180,120,0.06)",border:"1px solid rgba(180,160,100,0.12)",fontSize:11,color:"#a09070",lineHeight:1.8}}>
                     {result.method==="exhaustive"?<p>※ 本結果為精確計算（已窮舉所有對手組合）</p>:<p>※ 本結果為 Monte Carlo 模擬估計值，非精確機率</p>}
                   </div>
                 </div>
